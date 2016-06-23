@@ -15,7 +15,7 @@
  * It is advised to use -bs mode since error reporting with -t mode is not
  * possible.
  *
- * @author     Chris Corbyn
+ * @author Chris Corbyn
  */
 class Swift_Transport_SendmailTransport extends Swift_Transport_AbstractSmtpTransport
 {
@@ -28,7 +28,7 @@ class Swift_Transport_SendmailTransport extends Swift_Transport_AbstractSmtpTran
         'timeout' => 30,
         'blocking' => 1,
         'command' => '/usr/sbin/sendmail -bs',
-        'type' => Swift_Transport_IoBuffer::TYPE_PROCESS
+        'type' => Swift_Transport_IoBuffer::TYPE_PROCESS,
         );
 
     /**
@@ -102,6 +102,7 @@ class Swift_Transport_SendmailTransport extends Swift_Transport_AbstractSmtpTran
         $failedRecipients = (array) $failedRecipients;
         $command = $this->getCommand();
         $buffer = $this->getBuffer();
+        $count = 0;
 
         if (false !== strpos($command, ' -t')) {
             if ($evt = $this->_eventDispatcher->createSendEvent($this, $message)) {
@@ -112,7 +113,7 @@ class Swift_Transport_SendmailTransport extends Swift_Transport_AbstractSmtpTran
             }
 
             if (false === strpos($command, ' -f')) {
-                $command .= ' -f' . escapeshellarg($this->_getReversePath($message));
+                $command .= ' -f'.escapeshellarg($this->_getReversePath($message));
             }
 
             $buffer->initialize(array_merge($this->_params, array('command' => $command)));
@@ -120,7 +121,7 @@ class Swift_Transport_SendmailTransport extends Swift_Transport_AbstractSmtpTran
             if (false === strpos($command, ' -i') && false === strpos($command, ' -oi')) {
                 $buffer->setWriteTranslations(array("\r\n" => "\n", "\n." => "\n.."));
             } else {
-                $buffer->setWriteTranslations(array("\r\n"=>"\n"));
+                $buffer->setWriteTranslations(array("\r\n" => "\n"));
             }
 
             $count = count((array) $message->getTo())
@@ -143,7 +144,7 @@ class Swift_Transport_SendmailTransport extends Swift_Transport_AbstractSmtpTran
             $count = parent::send($message, $failedRecipients);
         } else {
             $this->_throwException(new Swift_TransportException(
-                'Unsupported sendmail command flags [' . $command . ']. ' .
+                'Unsupported sendmail command flags ['.$command.']. '.
                 'Must be one of "-bs" or "-t" but can include additional flags.'
                 ));
         }

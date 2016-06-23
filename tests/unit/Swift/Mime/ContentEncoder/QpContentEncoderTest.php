@@ -292,7 +292,7 @@ class Swift_Mime_ContentEncoder_QpContentEncoderTest extends \SwiftMailerTestCas
 
         $encoder = new Swift_Mime_ContentEncoder_QpContentEncoder($charStream);
         $encoder->encodeByteStream($os, $is);
-        $this->assertEquals(str_repeat('a', 75) . "=\r\n" . str_repeat('a', 66), $collection->content);
+        $this->assertEquals(str_repeat('a', 75)."=\r\n".str_repeat('a', 66), $collection->content);
     }
 
     public function testMaxLineLengthCanBeSpecified()
@@ -322,7 +322,7 @@ class Swift_Mime_ContentEncoder_QpContentEncoderTest extends \SwiftMailerTestCas
 
         $encoder = new Swift_Mime_ContentEncoder_QpContentEncoder($charStream);
         $encoder->encodeByteStream($os, $is, 0, 54);
-        $this->assertEquals(str_repeat('a', 53) . "=\r\n" . str_repeat('a', 48), $collection->content);
+        $this->assertEquals(str_repeat('a', 53)."=\r\n".str_repeat('a', 48), $collection->content);
     }
 
     public function testBytesBelowPermittedRangeAreEncoded()
@@ -376,15 +376,15 @@ class Swift_Mime_ContentEncoder_QpContentEncoderTest extends \SwiftMailerTestCas
         $is->shouldReceive('write')
                ->zeroOrMoreTimes()
                ->andReturnUsing($collection);
-            $charStream->shouldReceive('flushContents')
+        $charStream->shouldReceive('flushContents')
                        ->once();
-            $charStream->shouldReceive('importByteStream')
+        $charStream->shouldReceive('importByteStream')
                        ->once()
                        ->with($os);
-            $charStream->shouldReceive('readBytes')
+        $charStream->shouldReceive('readBytes')
                        ->once()
                        ->andReturn(array(61));
-            $charStream->shouldReceive('readBytes')
+        $charStream->shouldReceive('readBytes')
                        ->zeroOrMoreTimes()
                        ->andReturn(false);
 
@@ -449,14 +449,14 @@ class Swift_Mime_ContentEncoder_QpContentEncoderTest extends \SwiftMailerTestCas
                        ->once()
                        ->andReturn(array(ord('a')));
         }
-       $charStream->shouldReceive('readBytes')
+        $charStream->shouldReceive('readBytes')
                     ->zeroOrMoreTimes()
                     ->andReturn(false);
 
         $encoder = new Swift_Mime_ContentEncoder_QpContentEncoder($charStream);
         $encoder->encodeByteStream($os, $is, 22);
         $this->assertEquals(
-            str_repeat('a', 53) . "=\r\n" . str_repeat('a', 75) . "=\r\n" . str_repeat('a', 13),
+            str_repeat('a', 53)."=\r\n".str_repeat('a', 75)."=\r\n".str_repeat('a', 13),
             $collection->content
             );
     }
@@ -472,6 +472,25 @@ class Swift_Mime_ContentEncoder_QpContentEncoderTest extends \SwiftMailerTestCas
         $encoder->charsetChanged('windows-1252');
     }
 
+    public function testTextIsPreWrapped()
+    {
+        $encoder = $this->createEncoder();
+
+        $input = str_repeat('a', 70)."\r\n".
+                 str_repeat('a', 70)."\r\n".
+                 str_repeat('a', 70);
+
+        $os = new Swift_ByteStream_ArrayByteStream();
+        $is = new Swift_ByteStream_ArrayByteStream();
+        $is->write($input);
+
+        $encoder->encodeByteStream($is, $os);
+
+        $this->assertEquals(
+            $input, $os->read(PHP_INT_MAX)
+            );
+    }
+
     // -- Creation Methods
 
     private function _createCharacterStream($stub = false)
@@ -479,9 +498,12 @@ class Swift_Mime_ContentEncoder_QpContentEncoderTest extends \SwiftMailerTestCas
         return $this->getMockery('Swift_CharacterStream')->shouldIgnoreMissing();
     }
 
-    private function _createEncoder($charStream)
+    private function createEncoder()
     {
-        return new Swift_Mime_HeaderEncoder_QpHeaderEncoder($charStream);
+        $factory = new Swift_CharacterReaderFactory_SimpleCharacterReaderFactory();
+        $charStream = new Swift_CharacterStream_NgCharacterStream($factory, 'utf-8');
+
+        return new Swift_Mime_ContentEncoder_QpContentEncoder($charStream);
     }
 
     private function _createOutputByteStream($stub = false)

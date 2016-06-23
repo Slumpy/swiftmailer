@@ -11,7 +11,7 @@
 /**
  * An ID MIME Header for something like Message-ID or Content-ID.
  *
- * @author     Chris Corbyn
+ * @author Chris Corbyn
  */
 class Swift_Mime_Headers_IdentificationHeader extends Swift_Mime_Headers_AbstractHeader
 {
@@ -139,9 +139,9 @@ class Swift_Mime_Headers_IdentificationHeader extends Swift_Mime_Headers_Abstrac
      *
      * @see toString()
      *
-     * @return string
-     *
      * @throws Swift_RfcComplianceException
+     *
+     * @return string
      */
     public function getFieldBody()
     {
@@ -149,7 +149,7 @@ class Swift_Mime_Headers_IdentificationHeader extends Swift_Mime_Headers_Abstrac
             $angleAddrs = array();
 
             foreach ($this->_ids as $id) {
-                $angleAddrs[] = '<' . $id . '>';
+                $angleAddrs[] = '<'.$id.'>';
             }
 
             $this->setCachedValue(implode(' ', $angleAddrs));
@@ -168,13 +168,12 @@ class Swift_Mime_Headers_IdentificationHeader extends Swift_Mime_Headers_Abstrac
     private function _assertValidId($id)
     {
         if (!preg_match(
-            '/^' . $this->getGrammar()->getDefinition('id-left') . '@' .
-            $this->getGrammar()->getDefinition('id-right') . '$/D',
+            '/^'.$this->getGrammar()->getDefinition('id-left').'@'.
+            $this->getGrammar()->getDefinition('id-right').'$/D',
             $id
-            ))
-        {
+            )) {
             throw new Swift_RfcComplianceException(
-                'Invalid ID given <' . $id . '>'
+                'Invalid ID given <'.$id.'>'
                 );
         }
     }

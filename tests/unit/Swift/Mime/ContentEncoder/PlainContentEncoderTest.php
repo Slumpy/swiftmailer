@@ -50,13 +50,13 @@ class Swift_Mime_ContentEncoder_PlainContentEncoderTest extends \SwiftMailerTest
         $encoder = $this->_getEncoder('7bit');
 
         $chars = array();
-        for ($i = 0; $i < 50; $i++) {
+        for ($i = 0; $i < 50; ++$i) {
             $chars[] = 'a';
         }
         $input = implode(' ', $chars); //99 chars long
 
         $this->assertEquals(
-            'a a a a a a a a a a a a a a a a a a a a a a a a a ' . "\r\n" . //50 *
+            'a a a a a a a a a a a a a a a a a a a a a a a a a '."\r\n".//50 *
             'a a a a a a a a a a a a a a a a a a a a a a a a a',            //99
             $encoder->encodeString($input, 0, 50),
             '%s: Lines should be wrapped at 50 chars'
@@ -75,7 +75,7 @@ class Swift_Mime_ContentEncoder_PlainContentEncoderTest extends \SwiftMailerTest
            ->zeroOrMoreTimes()
            ->andReturnUsing($collection);
 
-        for ($i = 0; $i < 50; $i++) {
+        for ($i = 0; $i < 50; ++$i) {
             $os->shouldReceive('read')
                ->once()
                ->andReturn('a ');
@@ -87,7 +87,7 @@ class Swift_Mime_ContentEncoder_PlainContentEncoderTest extends \SwiftMailerTest
 
         $encoder->encodeByteStream($os, $is, 0, 50);
         $this->assertEquals(
-            str_repeat('a ', 25) . "\r\n" . str_repeat('a ', 25),
+            str_repeat('a ', 25)."\r\n".str_repeat('a ', 25),
             $collection->content
             );
     }
@@ -119,7 +119,7 @@ class Swift_Mime_ContentEncoder_PlainContentEncoderTest extends \SwiftMailerTest
             array("\n", "a\r\nb"),
             array("\n\r", "a\r\n\r\nb"),
             array("\n\n", "a\r\n\r\nb"),
-            array("\r\r", "a\r\n\r\nb")
+            array("\r\r", "a\r\n\r\nb"),
         );
     }
 
